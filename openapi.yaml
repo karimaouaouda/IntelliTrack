@@ -1,0 +1,345 @@
+openapi: 3.0.0
+info:
+  title: School Management System API
+  description: API documentation for the School Management System with attendance tracking
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@school.com
+
+servers:
+  - url: /api
+    description: API Base URL
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Error message
+
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum: [in, out]
+          example: in
+        recorded_at:
+          type: string
+          format: date-time
+          example: "2024-03-21T10:00:00Z"
+        device_id:
+          type: string
+          example: "DEVICE-001"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        ref_id:
+          type: string
+          example: "USR-ABC12345"
+        role:
+          type: string
+          example: "teacher"
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Jane Smith"
+        email:
+          type: string
+          format: email
+          example: "jane@example.com"
+        ref_id:
+          type: string
+          example: "STD-XYZ67890"
+
+    Classroom:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Class 10A"
+        capacity:
+          type: integer
+          example: 30
+        description:
+          type: string
+          example: "Mathematics Class"
+
+    AttendanceStats:
+      type: object
+      properties:
+        total_days:
+          type: integer
+          example: 20
+        present_days:
+          type: integer
+          example: 18
+        absent_days:
+          type: integer
+          example: 2
+        attendance_rate:
+          type: number
+          format: float
+          example: 90.0
+        attendance_history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                example: "2024-03-21"
+              first_in:
+                type: string
+                format: date-time
+                example: "2024-03-21T08:00:00Z"
+              last_out:
+                type: string
+                format: date-time
+                example: "2024-03-21T16:00:00Z"
+
+paths:
+  /attendance/record:
+    post:
+      summary: Record attendance for a user or student
+      description: Records attendance when a card is swiped
+      tags:
+        - Attendance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ref_id
+                - device_id
+              properties:
+                ref_id:
+                  type: string
+                  example: "USR-ABC12345"
+                device_id:
+                  type: string
+                  example: "DEVICE-001"
+      responses:
+        '200':
+          description: Attendance recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Attendance recorded successfully"
+                  attendable:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: "John Doe"
+                      type:
+                        type: string
+                        enum: [user, student]
+                        example: "user"
+                      role:
+                        type: string
+                        example: "teacher"
+                  attendance:
+                    $ref: '#/components/schemas/Attendance'
+        '404':
+          description: User or Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /attendance-reports/users/{user}:
+    get:
+      summary: Get attendance report for a user
+      description: Retrieves attendance statistics for a specific user
+      tags:
+        - Reports
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: User ID
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date for the report (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date for the report (YYYY-MM-DD)
+      responses:
+        '200':
+          description: User attendance report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  statistics:
+                    $ref: '#/components/schemas/AttendanceStats'
+
+  /attendance-reports/classrooms/{classroom}:
+    get:
+      summary: Get attendance report for a classroom
+      description: Retrieves attendance statistics for all students in a classroom
+      tags:
+        - Reports
+      parameters:
+        - name: classroom
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Classroom ID
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date for the report (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date for the report (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Classroom attendance report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  classroom:
+                    $ref: '#/components/schemas/Classroom'
+                  statistics:
+                    type: object
+                    properties:
+                      classroom_name:
+                        type: string
+                        example: "Class 10A"
+                      total_students:
+                        type: integer
+                        example: 30
+                      student_stats:
+                        type: object
+                        additionalProperties:
+                          $ref: '#/components/schemas/AttendanceStats'
+                      class_average:
+                        type: number
+                        format: float
+                        example: 85.5
+
+  /attendance-reports/classrooms/{classroom}/export:
+    get:
+      summary: Export classroom attendance report
+      description: Exports attendance statistics for a classroom in the specified format
+      tags:
+        - Reports
+      parameters:
+        - name: classroom
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Classroom ID
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date for the report (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date for the report (YYYY-MM-DD)
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, excel, pdf]
+            default: json
+          description: Export format
+      responses:
+        '200':
+          description: Exported classroom attendance report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  classroom:
+                    $ref: '#/components/schemas/Classroom'
+                  statistics:
+                    type: object
+                    properties:
+                      classroom_name:
+                        type: string
+                        example: "Class 10A"
+                      total_students:
+                        type: integer
+                        example: 30
+                      student_stats:
+                        type: object
+                        additionalProperties:
+                          $ref: '#/components/schemas/AttendanceStats'
+                      class_average:
+                        type: number
+                        format: float
+                        example: 85.5
+                  export_format:
+                    type: string
+                    example: "json" 

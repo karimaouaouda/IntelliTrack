@@ -1,0 +1,161 @@
+@baseUrl = http://localhost:8000/api
+@token = your_auth_token_here
+
+### Variables for testing
+@userId = 1
+@classroomId = 1
+@startDate = 2024-03-01
+@endDate = 2024-03-21
+
+### Authentication ###
+
+# Login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "teacher@example.com",
+    "password": "password"
+}
+
+### Logout
+POST {{baseUrl}}/logout
+Authorization: Bearer {{token}}
+
+### Get Current User
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Attendance Recording ###
+
+# Record Attendance
+POST {{baseUrl}}/attendance/record
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "ref_id": "TCH-001",
+    "device_id": "DEV-001"
+}
+
+### Attendance Reports ###
+
+# Get User Report
+GET {{baseUrl}}/attendance-reports/users/{{userId}}
+    ?start_date={{startDate}}
+    &end_date={{endDate}}
+Authorization: Bearer {{token}}
+
+# Get Classroom Report
+GET {{baseUrl}}/attendance-reports/classrooms/{{classroomId}}
+    ?start_date={{startDate}}
+    &end_date={{endDate}}
+Authorization: Bearer {{token}}
+
+# Export Classroom Report
+GET {{baseUrl}}/attendance-reports/classrooms/{{classroomId}}/export
+    ?start_date={{startDate}}
+    &end_date={{endDate}}
+    &format=json
+Authorization: Bearer {{token}}
+
+### Teacher Endpoints ###
+
+# Get Teacher's Classrooms
+GET {{baseUrl}}/teachers/1/classrooms
+Authorization: Bearer {{token}}
+
+# Get Teacher's Schedules
+GET {{baseUrl}}/teachers/1/schedules
+Authorization: Bearer {{token}}
+
+# Get Teacher's Attendance
+GET {{baseUrl}}/teachers/1/attendance
+Authorization: Bearer {{token}}
+
+### Classroom Endpoints ###
+
+# Get Classroom's Teachers
+GET {{baseUrl}}/classrooms/{{classroomId}}/teachers
+Authorization: Bearer {{token}}
+
+# Get Classroom's Schedules
+GET {{baseUrl}}/classrooms/{{classroomId}}/schedules
+Authorization: Bearer {{token}}
+
+# Get Classroom's Students
+GET {{baseUrl}}/classrooms/{{classroomId}}/students
+Authorization: Bearer {{token}}
+
+### Parent Endpoints ###
+
+# Get Parent's Students
+GET {{baseUrl}}/parents/1/students
+Authorization: Bearer {{token}}
+
+### Student Endpoints ###
+
+# Get Student's Attendance
+GET {{baseUrl}}/students/{{userId}}/attendance
+Authorization: Bearer {{token}}
+
+### User Endpoints ###
+
+# Get User's Attendance
+GET {{baseUrl}}/users/{{userId}}/attendance
+Authorization: Bearer {{token}}
+
+### Test Data Examples ###
+
+# Login as Teacher
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "teacher@example.com",
+    "password": "password"
+}
+
+# Login as Parent
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "parent@example.com",
+    "password": "password"
+}
+
+# Login as Administrator
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "admin@example.com",
+    "password": "password"
+}
+
+### Error Cases ###
+
+# Invalid Login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "email": "wrong@example.com",
+    "password": "wrongpassword"
+}
+
+# Missing Token
+GET {{baseUrl}}/me
+
+# Invalid Token
+GET {{baseUrl}}/me
+Authorization: Bearer invalid_token
+
+# Invalid User ID
+GET {{baseUrl}}/users/999/attendance
+Authorization: Bearer {{token}}
+
+# Invalid Classroom ID
+GET {{baseUrl}}/classrooms/999/students
+Authorization: Bearer {{token}}
