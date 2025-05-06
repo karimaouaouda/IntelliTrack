@@ -118,6 +118,19 @@ return new class extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
+
+        \Spatie\Permission\Models\Role::create(['name' => 'parent']);
+        \Spatie\Permission\Models\Role::create(['name' => 'teacher']);
+        \Spatie\Permission\Models\Role::create(['name' => 'administrator']);
+
+        $email = 'karimaouaouda.officiel@gmail.com';
+        $password = 'cpplang24';
+        $name = 'karim aouaouda';
+
+        $user = new \App\Models\User(compact('name', 'email', 'password'));
+
+        $user->save();
     }
 
     /**
