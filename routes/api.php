@@ -9,6 +9,19 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\ParentController;
 use Illuminate\Support\Facades\Route;
 
+
+// auth apis
+Route::prefix('auth')
+    ->controller(\App\Http\Controllers\Auth\AuthController::class)
+    ->group(function(){
+        Route::post('login', 'login');
+
+        Route::post('logout', 'logout')
+            ->middleware('auth:sanctum');
+
+    });
+
+
 Route::post('/attendance/record', [AttendanceController::class, 'recordAttendance']);
 
 
