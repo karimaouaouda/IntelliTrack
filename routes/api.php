@@ -41,6 +41,8 @@ Route::prefix('teachers')->group(function () {
 
 // Classroom Endpoints
 Route::prefix('classrooms')->group(function () {
+    Route::get('/mine', [ClassroomController::class, 'myClassrooms'])
+        ->middleware('auth:sanctum');
     Route::get('/{classroom}/teachers', [ClassroomController::class, 'getTeachers']);
     Route::get('/{classroom}/schedules', [ClassroomController::class, 'getSchedules']);
     Route::get('/{classroom}/students', [ClassroomController::class, 'getStudents']);

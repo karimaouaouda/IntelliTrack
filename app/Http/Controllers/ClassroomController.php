@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Http\Requests\StoreClassroomRequest;
 use App\Http\Requests\UpdateClassroomRequest;
@@ -116,6 +117,23 @@ class ClassroomController extends Controller
         return response()->json([
             'data' => $students,
             'message' => 'Students retrieved successfully'
+        ]);
+    }
+
+    public function myClassrooms(Request $request){
+        $user = $request->user();
+
+        if( $user->roles()->first()?->name !== 'teacher' ){
+            return response()->json([
+                'message' => 'only teachers can see their classrooms'
+            ]);
+        }
+
+        $classrooms = $user->classrooms()->get();
+
+        return response()->json([
+            'success' => 'succesfuly getting classrooms',
+            'classrooms' => ClassroomResource::collection($classrooms)
         ]);
     }
 }
