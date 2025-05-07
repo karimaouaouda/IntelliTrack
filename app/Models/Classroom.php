@@ -59,4 +59,15 @@ class Classroom extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    /**
+     * @throws \Throwable
+     */
+    public function toArray()
+    {
+        return [
+            ...parent::toArray(),
+            'students' => $this->students()->get()->toResourceCollection()
+        ];
+    }
 }
