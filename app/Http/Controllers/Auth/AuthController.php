@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => 'login successfully',
-                'token' => $token
+                'token' => $token,
+                'user' => UserResource::make($user)
             ], 200);
         }
 

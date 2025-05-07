@@ -142,4 +142,12 @@ class User extends Authenticatable implements FilamentUser, \App\Interfaces\Atte
             }
         });
     }
+
+    public function toArray()
+    {
+        return [
+          ...parent::toArray(),
+          'role' => $this->roles()->first()?->name ?? 'parent'
+        ];
+    }
 }
