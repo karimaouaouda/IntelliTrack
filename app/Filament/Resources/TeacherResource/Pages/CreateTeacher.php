@@ -44,7 +44,9 @@ class CreateTeacher extends CreateRecord
                     ->label('Reference ID')
                     ->helperText('A unique identifier for the teacher (e.g., TCH-001)'),
 
-                Select::make('role')
+                Select::make('roles')
+                    ->relationship('roles')
+                    ->default('teacher')
                     ->options([
                         'teacher' => 'Teacher',
                         'head_teacher' => 'Head Teacher',
@@ -67,4 +69,4 @@ class CreateTeacher extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
-} 
+}
