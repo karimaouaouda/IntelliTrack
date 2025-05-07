@@ -8,6 +8,7 @@ use App\Traits\Attendable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -87,11 +88,11 @@ class User extends Authenticatable implements FilamentUser, \App\Interfaces\Atte
         return $this->hasMany(Schedule::class, 'teacher_id');
     }
 
-    public function classrooms(): BelongsToMany
+    public function classrooms()
     {
-        return $this->belongsToMany(Classroom::class, 'teacher_classroom')
-            ->withPivot(['subject', 'is_primary_teacher', 'schedule', 'notes'])
-            ->withTimestamps();
+        return Classroom::query()->whereHas('schedules', function(Builder $q){
+            $q->where('teacher_id', $this->getAttribute('id'));
+        });
     }
 
     public function students(): BelongsToMany
